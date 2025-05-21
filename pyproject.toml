@@ -1,0 +1,19 @@
+[project]
+name = "nnue-pytorch"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "asciimatics>=1.15.0",
+    "cupy-cuda11x>=13.4.1",
+    "gputil>=1.4.0",
+    "matplotlib>=3.10.3",
+    "numba>=0.61.2",
+    "numpy<2",
+    "psutil>=7.0.0",
+    "python-chess==0.31.4",
+    "pytorch-lightning==1.9.5",
+    "tensorboard>=2.19.0",
+    "torch==2.0.1+cu118",
+]
