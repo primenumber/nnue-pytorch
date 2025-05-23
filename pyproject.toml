@@ -3,10 +3,10 @@ name = "nnue-pytorch"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "asciimatics>=1.15.0",
-    "cupy-cuda11x>=13.4.1",
+    "cupy-cuda12x>=13.4.1",
     "gputil>=1.4.0",
     "matplotlib>=3.10.3",
     "numba>=0.61.2",
@@ -15,5 +15,18 @@ dependencies = [
     "python-chess==0.31.4",
     "pytorch-lightning==1.9.5",
     "tensorboard>=2.19.0",
-    "torch==2.0.1+cu118",
+    "torch>=2.7.0",
 ]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
