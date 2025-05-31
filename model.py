@@ -6,6 +6,7 @@ from torch import nn
 import torch.nn.functional as F
 import lightning.pytorch as pl
 import sys
+import features
 
 # 3 layer fully connected network
 L1 = 2048
@@ -129,11 +130,11 @@ class NNUE(pl.LightningModule):
 
   It is not ideal for training a Pytorch quantized model directly.
   """
-  def __init__(self, feature_set, start_lambda=1.0, end_lambda=1.0, max_epoch=800, gamma=0.992, lr=8.75e-4, epoch_size=100_000_000, batch_size=16384, in_scaling=240, out_scaling=280, offset=270, adjust_loss=0.1):
+  def __init__(self, features_name, start_lambda=1.0, end_lambda=1.0, max_epoch=800, gamma=0.992, lr=8.75e-4, epoch_size=100_000_000, batch_size=16384, in_scaling=240, out_scaling=280, offset=270, adjust_loss=0.1):
     super(NNUE, self).__init__()
     self.num_ls_buckets = 4
-    self.input = nn.Linear(feature_set.num_features, L1)
-    self.feature_set = feature_set
+    self.feature_set = features.get_feature_set_from_name(features_name)
+    self.input = nn.Linear(self.feature_set.num_features, L1)
     self.layer_stacks = LayerStacks(self.num_ls_buckets)
     self.start_lambda = start_lambda
     self.end_lambda = end_lambda

@@ -29,20 +29,20 @@ class SparseBatch(ctypes.Structure):
         ('layer_stack_indices', ctypes.POINTER(ctypes.c_int)),
     ]
 
-    def get_tensors(self, device):
-        white_values = torch.from_numpy(np.ctypeslib.as_array(self.white_values, shape=(self.num_active_white_features,))).to(device=device, non_blocking=True)
-        black_values = torch.from_numpy(np.ctypeslib.as_array(self.black_values, shape=(self.num_active_black_features,))).to(device=device, non_blocking=True)
-        iw = torch.transpose(torch.from_numpy(np.ctypeslib.as_array(self.white, shape=(self.num_active_white_features, 2))).to(device=device, non_blocking=True), 0, 1).long()
-        ib = torch.transpose(torch.from_numpy(np.ctypeslib.as_array(self.black, shape=(self.num_active_white_features, 2))).to(device=device, non_blocking=True), 0, 1).long()
-        us = torch.from_numpy(np.ctypeslib.as_array(self.is_white, shape=(self.size, 1))).to(device=device, non_blocking=True)
+    def get_tensors(self):
+        white_values = torch.from_numpy(np.ctypeslib.as_array(self.white_values, shape=(self.num_active_white_features,)))
+        black_values = torch.from_numpy(np.ctypeslib.as_array(self.black_values, shape=(self.num_active_black_features,)))
+        iw = torch.transpose(torch.from_numpy(np.ctypeslib.as_array(self.white, shape=(self.num_active_white_features, 2))), 0, 1).long()
+        ib = torch.transpose(torch.from_numpy(np.ctypeslib.as_array(self.black, shape=(self.num_active_white_features, 2))), 0, 1).long()
+        us = torch.from_numpy(np.ctypeslib.as_array(self.is_white, shape=(self.size, 1)))
         them = 1.0 - us
-        outcome = torch.from_numpy(np.ctypeslib.as_array(self.outcome, shape=(self.size, 1))).to(device=device, non_blocking=True)
-        score = torch.from_numpy(np.ctypeslib.as_array(self.score, shape=(self.size, 1))).to(device=device, non_blocking=True)
+        outcome = torch.from_numpy(np.ctypeslib.as_array(self.outcome, shape=(self.size, 1)))
+        score = torch.from_numpy(np.ctypeslib.as_array(self.score, shape=(self.size, 1)))
         white = torch.sparse_coo_tensor(iw, white_values, (self.size, self.num_inputs))
         black = torch.sparse_coo_tensor(ib, black_values, (self.size, self.num_inputs))
         white._coalesced_(True)
         black._coalesced_(True)
-        layer_stack_indices = torch.from_numpy(np.ctypeslib.as_array(self.layer_stack_indices, shape=(self.size,))).long().to(device=device, non_blocking=True)
+        layer_stack_indices = torch.from_numpy(np.ctypeslib.as_array(self.layer_stack_indices, shape=(self.size,))).long()
         return us, them, white, black, outcome, score, layer_stack_indices
 
 SparseBatchPtr = ctypes.POINTER(SparseBatch)
@@ -60,10 +60,9 @@ class TrainingDataProvider:
         num_workers,
         batch_size=None,
         filtered=False,
-        random_fen_skipping=0,
-        device='cpu'):
+        random_fen_skipping=0):
 
-        self.feature_set = feature_set.encode('utf-8')
+        self.feature_set = feature_set.name.encode('utf-8')
         self.create_stream = create_stream
         self.destroy_stream = destroy_stream
         self.fetch_next = fetch_next
@@ -74,7 +73,6 @@ class TrainingDataProvider:
         self.batch_size = batch_size
         self.filtered = filtered
         self.random_fen_skipping = random_fen_skipping
-        self.device = device
 
         if batch_size:
             self.stream = self.create_stream(self.feature_set, self.num_workers, self.filename, batch_size, cyclic, filtered, random_fen_skipping)
@@ -88,7 +86,7 @@ class TrainingDataProvider:
         v = self.fetch_next(self.stream)
 
         if v:
-            tensors = v.contents.get_tensors(self.device)
+            tensors = v.contents.get_tensors()
             self.destroy_part(v)
             return tensors
         else:
@@ -128,7 +126,7 @@ def make_sparse_batch_from_fens(feature_set, fens, scores, plies, results):
     return b
 
 class SparseBatchProvider(TrainingDataProvider):
-    def __init__(self, feature_set, filename, batch_size, cyclic=True, num_workers=1, filtered=False, random_fen_skipping=0, device='cpu'):
+    def __init__(self, feature_set, filename, batch_size, cyclic=True, num_workers=1, filtered=False, random_fen_skipping=0):
         super(SparseBatchProvider, self).__init__(
             feature_set,
             create_sparse_batch_stream,
@@ -140,11 +138,10 @@ class SparseBatchProvider(TrainingDataProvider):
             num_workers,
             batch_size,
             filtered,
-            random_fen_skipping,
-            device)
+            random_fen_skipping)
 
 class SparseBatchDataset(torch.utils.data.IterableDataset):
-  def __init__(self, feature_set, filename, batch_size, cyclic=True, num_workers=1, filtered=False, random_fen_skipping=0, device='cpu'):
+  def __init__(self, feature_set, filename, batch_size, cyclic=True, num_workers=1, filtered=False, random_fen_skipping=0):
     super(SparseBatchDataset).__init__()
     self.feature_set = feature_set
     self.filename = filename
@@ -153,10 +150,9 @@ class SparseBatchDataset(torch.utils.data.IterableDataset):
     self.num_workers = num_workers
     self.filtered = filtered
     self.random_fen_skipping = random_fen_skipping
-    self.device = device
 
   def __iter__(self):
-    return SparseBatchProvider(self.feature_set, self.filename, self.batch_size, cyclic=self.cyclic, num_workers=self.num_workers, filtered=self.filtered, random_fen_skipping=self.random_fen_skipping, device=self.device)
+    return SparseBatchProvider(self.feature_set, self.filename, self.batch_size, cyclic=self.cyclic, num_workers=self.num_workers, filtered=self.filtered, random_fen_skipping=self.random_fen_skipping)
 
 class FixedNumBatchesDataset(Dataset):
   def __init__(self, dataset, num_batches):
