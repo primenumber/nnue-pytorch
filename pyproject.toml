@@ -13,9 +13,10 @@ dependencies = [
     "numpy>=2",
     "psutil>=7.0.0",
     "python-chess==0.31.4",
-    "pytorch-lightning==1.9.5",
+    "lightning>=2.5",
     "tensorboard>=2.19.0",
     "torch>=2.7.0",
+    "jsonargparse[signatures]>=4.27"
 ]
 
 [tool.uv.sources]

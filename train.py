@@ -2,12 +2,12 @@ import argparse
 import model as M
 import nnue_dataset
 import nnue_bin_dataset
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import features
 import os
 import torch
 from torch import set_num_threads as t_set_num_threads
-from pytorch_lightning import loggers as pl_loggers
+from lightning.pytorch import loggers as pl_loggers
 from torch.utils.data import DataLoader, Dataset
 
 def data_loader_cc(train_filename, val_filename, feature_set, num_workers, batch_size, filtered, random_fen_skipping, main_device, epoch_size):
