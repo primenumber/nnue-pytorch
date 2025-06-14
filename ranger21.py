@@ -74,7 +74,7 @@ def get_chebs(num_epochs):
 
 
 def normalize_gradient(x, use_channels=False, epsilon=1e-8):
-    """  use stdev to normalize gradients """
+    """use stdev to normalize gradients"""
     size = x.dim()
     # print(f"size = {size}")
 
@@ -90,7 +90,7 @@ def normalize_gradient(x, use_channels=False, epsilon=1e-8):
 
 
 def centralize_gradient(x, gc_conv_only=False):
-    """credit - https://github.com/Yonghongwei/Gradient-Centralization """
+    """credit - https://github.com/Yonghongwei/Gradient-Centralization"""
 
     size = x.dim()
     # print(f"size = {size}")
@@ -359,7 +359,7 @@ class Ranger21(TO.Optimizer):
 
     # lookahead functions
     def clear_cache(self):
-        """clears the lookahead cached params """
+        """clears the lookahead cached params"""
 
         print(f"clearing lookahead cache...")
         for group in self.param_groups:
@@ -391,7 +391,7 @@ class Ranger21(TO.Optimizer):
                 p.data.copy_(param_state["lookahead_params"])
 
     def unit_norm(self, x):
-        """ axis-based Euclidean norm"""
+        """axis-based Euclidean norm"""
         # verify shape
         keepdim = True
         dim = None
@@ -465,7 +465,7 @@ class Ranger21(TO.Optimizer):
             raise ValueError(f"warmup type {style} not implemented.")
 
     def get_warm_down(self, lr, iteration):
-        """ linear style warmdown """
+        """linear style warmdown"""
         if iteration < self.start_warm_down:
             return lr
 
@@ -706,7 +706,7 @@ class Ranger21(TO.Optimizer):
 
         # stable weight decay
         if self.use_madgrad:
-            variance_normalized = torch.pow(variance_ma_sum / param_size, 1/3)
+            variance_normalized = torch.pow(variance_ma_sum / param_size, 1 / 3)
         else:
             variance_normalized = math.sqrt(variance_ma_sum / param_size)
         # variance_mean = variance_ma_sum / param_size
@@ -868,8 +868,8 @@ class Ranger21(TO.Optimizer):
                                 state["grad_ma"],
                             )
 
-                    bias_correction1 = 1 - beta1 ** step
-                    bias_correction2 = 1 - beta2 ** step
+                    bias_correction1 = 1 - beta1**step
+                    bias_correction2 = 1 - beta2**step
 
                     if self.momentum_pnm:
                         # Maintains the maximum of all 2nd moment running avg. till now
@@ -889,9 +889,9 @@ class Ranger21(TO.Optimizer):
                         grad = normalize_gradient(grad)
 
                     if not self.use_adabelief:
-                        grad_ma.mul_(beta1 ** 2).add_(grad, alpha=1 - beta1 ** 2)
+                        grad_ma.mul_(beta1**2).add_(grad, alpha=1 - beta1**2)
 
-                    noise_norm = math.sqrt((1 + beta2) ** 2 + beta2 ** 2)
+                    noise_norm = math.sqrt((1 + beta2) ** 2 + beta2**2)
 
                     step_size = lr / bias_correction1
 
@@ -950,4 +950,3 @@ class Ranger21(TO.Optimizer):
                     )
                     # save for next merge
                     param_state["lookahead_params"].copy_(p.data)
-

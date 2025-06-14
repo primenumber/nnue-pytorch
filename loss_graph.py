@@ -22,11 +22,11 @@ DATA_SET = [
     #     'label': 'halfkp_1024x2-8-32',
     # },
     {
-        'file_path': r"C:\home\nodchip\nnue-pytorch\logs\default\version_41\events.out.tfevents.1656322267.endwalker.45728.0",
+        "file_path": r"C:\home\nodchip\nnue-pytorch\logs\default\version_41\events.out.tfevents.1656322267.endwalker.45728.0",
         # 'label': 'StepLR step=1 gamma=0.992',
         # 'label': 'Ranger',
         # 'label': 'lr=0.0008.75',
-        'label': 'no-mirror',
+        "label": "no-mirror",
     },
     # {
     #     'file_path': r"C:\home\nodchip\nnue-pytorch\logs\default\version_44\events.out.tfevents.1656554368.endwalker.6968.0",
@@ -77,8 +77,8 @@ DATA_SET = [
     #     'label': 'lr=0.00025',
     # },
     {
-        'file_path': r"C:\home\nodchip\nnue-pytorch\logs\default\version_62\events.out.tfevents.1660124365.endwalker.10072.0",
-        'label': 'mirror',
+        "file_path": r"C:\home\nodchip\nnue-pytorch\logs\default\version_62\events.out.tfevents.1660124365.endwalker.10072.0",
+        "label": "mirror",
     },
 ]
 
@@ -88,12 +88,12 @@ GRAPH_INDEX = 0
 
 def draw_each_tag():
     global GRAPH_INDEX
-    for tag in ['train_loss', 'val_loss']:
-        plt.figure(figsize=(1600.0/100.0, 1200.0/100.0))
+    for tag in ["train_loss", "val_loss"]:
+        plt.figure(figsize=(1600.0 / 100.0, 1200.0 / 100.0))
 
         for data_index, data in enumerate(DATA_SET):
-            file_path = data['file_path']
-            label = data['label']
+            file_path = data["file_path"]
+            label = data["label"]
 
             xs = list()
             ys = list()
@@ -120,11 +120,11 @@ def draw_each_tag():
 
 def draw_all():
     global GRAPH_INDEX
-    plt.figure(figsize=(1600.0/100.0, 1200.0/100.0))
-    for tag in ['train_loss', 'val_loss']:
+    plt.figure(figsize=(1600.0 / 100.0, 1200.0 / 100.0))
+    for tag in ["train_loss", "val_loss"]:
         for data_index, data in enumerate([DATA_SET[-1]]):
-            file_path = data['file_path']
-            label = data['label']
+            file_path = data["file_path"]
+            label = data["label"]
 
             xs = list()
             ys = list()
@@ -153,5 +153,5 @@ def main():
     draw_all()
 
 
-if __name__ == '__main__':
-  main()
+if __name__ == "__main__":
+    main()

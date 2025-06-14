@@ -7,7 +7,7 @@ import argparse
 
 
 def convert_ckpt(root_dir):
-    """ Find the list of checkpoints that are available, and convert those that have no matching .nnue """
+    """Find the list of checkpoints that are available, and convert those that have no matching .nnue"""
     # run96/run0/default/version_0/checkpoints/epoch=3.ckpt, or epoch=3-step=321151.ckpt
     p = re.compile("epoch.*\.ckpt")
     ckpts = []
@@ -21,16 +21,20 @@ def convert_ckpt(root_dir):
     # run96/run0/default/version_0/checkpoints/epoch=3.ckpt -> run96/run0/nn-epoch3.nnue
     for ckpt in ckpts:
         nnue_file_name = re.sub("default/version_[0-9]+/checkpoints/", "", ckpt)
-        nnue_file_name = re.sub(r"epoch\=([0-9]+).*\.ckpt", r"nn-epoch\1.nnue", nnue_file_name)
+        nnue_file_name = re.sub(
+            r"epoch\=([0-9]+).*\.ckpt", r"nn-epoch\1.nnue", nnue_file_name
+        )
         if not os.path.exists(nnue_file_name):
-            command = "{} serialize.py {} {} ".format(sys.executable, ckpt, nnue_file_name)
+            command = "{} serialize.py {} {} ".format(
+                sys.executable, ckpt, nnue_file_name
+            )
             ret = os.system(command)
             if ret != 0:
                 print("Error serializing!")
 
 
 def find_nnue(root_dir):
-    """ Find the set of nnue nets that are available for testing, going through the full subtree """
+    """Find the set of nnue nets that are available for testing, going through the full subtree"""
     p = re.compile("nn-epoch[0-9]*.nnue")
     nnues = []
     for path, subdirs, files in os.walk(root_dir, followlinks=False):
@@ -42,7 +46,7 @@ def find_nnue(root_dir):
 
 
 def parse_ordo(root_dir, nnues):
-    """ Parse an ordo output file for rating and error """
+    """Parse an ordo output file for rating and error"""
     ordo_file_name = os.path.join(root_dir, "ordo.out")
     ordo_scores = {}
     for name in nnues:
@@ -62,8 +66,16 @@ def parse_ordo(root_dir, nnues):
     return ordo_scores
 
 
-def run_match(best, root_dir, c_chess_exe, concurrency, book_file_name, stockfish_base, stockfish_test):
-    """ Run a match using c-chess-cli adding pgns to a file to be analysed with ordo """
+def run_match(
+    best,
+    root_dir,
+    c_chess_exe,
+    concurrency,
+    book_file_name,
+    stockfish_base,
+    stockfish_test,
+):
+    """Run a match using c-chess-cli adding pgns to a file to be analysed with ordo"""
     if stockfish_test is None:
         stockfish_test = stockfish_base
 
@@ -82,31 +94,31 @@ def run_match(best, root_dir, c_chess_exe, concurrency, book_file_name, stockfis
         command = command + " -engine cmd={} name={} option.EvalFile={}".format(
             stockfish_test, net, os.path.join(os.getcwd(), net)
         )
-    command = command + " -pgn {} 0 2>&1".format(
-        pgn_file_name
-    )
+    command = command + " -pgn {} 0 2>&1".format(pgn_file_name)
 
     print("Running match with c-chess-cli ... {}".format(pgn_file_name), flush=True)
-    c_chess_out = open(os.path.join(root_dir, "c_chess.out"), 'w')
-    process = subprocess.Popen("stdbuf -o0 " + command, stdout=subprocess.PIPE, shell=True)
+    c_chess_out = open(os.path.join(root_dir, "c_chess.out"), "w")
+    process = subprocess.Popen(
+        "stdbuf -o0 " + command, stdout=subprocess.PIPE, shell=True
+    )
     seen = {}
     for line in process.stdout:
-        line = line.decode('utf-8')
+        line = line.decode("utf-8")
         c_chess_out.write(line)
-        if 'Score' in line:
-            epoch_num = re.search(r'epoch(\d+)', line)
+        if "Score" in line:
+            epoch_num = re.search(r"epoch(\d+)", line)
             if epoch_num.group(1) not in seen:
-                sys.stdout.write('\n')
+                sys.stdout.write("\n")
             seen[epoch_num.group(1)] = True
-            sys.stdout.write('\r' + line.rstrip())
-    sys.stdout.write('\n')
+            sys.stdout.write("\r" + line.rstrip())
+    sys.stdout.write("\n")
     c_chess_out.close()
     if process.wait() != 0:
         print("Error running match!")
 
 
 def run_ordo(root_dir, ordo_exe, concurrency):
-    """ run an ordo calcuation on an existing pgn file """
+    """run an ordo calcuation on an existing pgn file"""
     pgn_file_name = os.path.join(root_dir, "out.pgn")
     ordo_file_name = os.path.join(root_dir, "ordo.out")
     command = "{} -q -G -J  -p  {} -a 0.0 --anchor=master --draw-auto --white-auto -s 100 --cpus={} -o {}".format(
@@ -129,7 +141,7 @@ def run_round(
     book_file_name,
     concurrency,
 ):
-    """ run a round of games, finding existing nets, analyze an ordo file to pick most suitable ones, run a round, and run ordo """
+    """run a round of games, finding existing nets, analyze an ordo file to pick most suitable ones, run a round, and run ordo"""
 
     # find and convert checkpoints to .nnue
     convert_ckpt(root_dir)
@@ -175,7 +187,15 @@ def run_round(
             break
 
     # run these nets against master...
-    run_match(best, root_dir, c_chess_exe, concurrency, book_file_name, stockfish_base, stockfish_test)
+    run_match(
+        best,
+        root_dir,
+        c_chess_exe,
+        concurrency,
+        book_file_name,
+        stockfish_base,
+        stockfish_test,
+    )
 
     # and run a new ordo ranking for the games played so far
     run_ordo(root_dir, ordo_exe, concurrency)
