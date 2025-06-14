@@ -297,7 +297,8 @@ def main():
     if args.source.endswith(".pt"):
       nnue = torch.load(args.source)
     else:
-      nnue = M.NNUE.load_from_checkpoint(args.source, feature_set=feature_set)
+      nnue = M.NNUE.load_from_checkpoint(args.source, features_name=args.features)
+    nnue = nnue.cpu()
     nnue.eval()
     writer = NNUEWriter(nnue, args.description, ft_compression=args.ft_compression)
     with open(args.target, 'wb') as f:
