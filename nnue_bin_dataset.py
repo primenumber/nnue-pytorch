@@ -115,7 +115,7 @@ class NNUEBinData(torch.utils.data.Dataset):
                 if white_king_sq == i or black_king_sq == i:
                     continue
                 if br.readBits(1):
-                    assert bd.piece_at(i) == None
+                    assert bd.piece_at(i) is None
                     piece_index = br.readBits(3)
                     piece = HUFFMAN_MAP[piece_index]
                     color = br.readBits(1)

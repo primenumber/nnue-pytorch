@@ -82,7 +82,7 @@ class LayerStacks(nn.Module):
 
     def forward(self, x, ls_indices):
         # Precompute and cache the offset for gathers
-        if self.idx_offset == None or self.idx_offset.shape[0] != x.shape[0]:
+        if self.idx_offset is None or self.idx_offset.shape[0] != x.shape[0]:
             self.idx_offset = torch.arange(
                 0, x.shape[0] * self.count, self.count, device=ls_indices.device
             )
