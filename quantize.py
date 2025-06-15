@@ -79,7 +79,6 @@ def main():
     train = nnue_bin_dataset.NNUEBinData("d8_100000.bin")
     train_small = torch.utils.data.Subset(train, range(0, len(train) // 1000))
     train_loader = DataLoader(train_small)
-    val_loader = DataLoader(nnue_bin_dataset.NNUEBinData("d10_10000.bin"))
     trainer = pl.Trainer()
 
     nnue.qconfig = torch.quantization.get_default_qconfig("fbgemm")

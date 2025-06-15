@@ -12,7 +12,6 @@ from numba import njit
 
 def ascii_hist(name, x, bins=6):
     N, X = numpy.histogram(x, bins=bins)
-    total = 1.0 * len(x)
     width = 50
     nmax = N.max()
 
@@ -271,8 +270,6 @@ class NNUEReader:
             raise Exception("Invalid compression method.")
 
     def read_feature_transformer(self, layer):
-        shape = layer.weight.shape
-
         layer.bias.data = self.tensor(np.int16, layer.bias.shape).divide(
             self.model.quantized_one
         )
@@ -291,7 +288,6 @@ class NNUEReader:
         kBiasScaleOut = self.model.weight_scale_out * self.model.nnue2score
         kBiasScaleHidden = self.model.weight_scale_hidden * self.model.quantized_one
         kBiasScale = kBiasScaleOut if is_output else kBiasScaleHidden
-        kMaxWeight = self.model.quantized_one / kWeightScale
 
         # FC inputs are padded to 32 elements by spec.
         non_padded_shape = layer.weight.shape

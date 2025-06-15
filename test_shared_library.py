@@ -12,7 +12,7 @@ def test_stream(stream_type, batch_size=None):
 
     start_time = time.time()
     for i in range(4096 // (batch_size if batch_size else 1)):
-        tensors = next(stream)
+        next(stream)
     end_time = time.time()
     print("{:6.3f} seconds".format(end_time - start_time))
 

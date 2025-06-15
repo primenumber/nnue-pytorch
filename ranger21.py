@@ -288,9 +288,6 @@ class Ranger21(TO.Optimizer):
             self.tracking_variance_sum = []
             self.tracking_variance_normalized = []
 
-        # display
-        engine = "AdamW" if not self.use_madgrad else "MadGrad"
-
         # print out initial settings to make usage easier
 
         self.show_settings()
@@ -731,7 +728,6 @@ class Ranger21(TO.Optimizer):
 
             # Perform stable weight decay
             decay = group["weight_decay"]
-            eps = group["eps"]
             lr = group["lr"]
             momentum = group["momentum"]
 
@@ -751,7 +747,6 @@ class Ranger21(TO.Optimizer):
             # warmdown
             # ==========
             if self.warmdown_active:
-                orig_lr = lr
                 lr = self.get_warm_down(lr, step)
                 assert lr > 0, "lr went negative"
 
