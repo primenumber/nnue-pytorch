@@ -2,7 +2,7 @@ import argparse
 import features
 import math
 import model as M
-import numpy
+import numpy as np
 import nnue_bin_dataset
 import struct
 import torch
@@ -201,12 +201,12 @@ class NNUEWriter:
 class NNUEReader:
     def __init__(self, f, feature_set):
         self.f = f
-        self.feature_set = feature_set
+        self.feature_set = features.get_feature_set_from_name(feature_set)
         self.model = M.NNUE(feature_set)
         fc_hash = NNUEWriter.fc_hash(self.model)
 
-        self.read_header(feature_set, fc_hash)
-        self.read_int32(feature_set.hash ^ (M.L1 * 2))  # Feature transformer hash
+        self.read_header(self.feature_set, fc_hash)
+        self.read_int32(self.feature_set.hash ^ (M.L1 * 2))  # Feature transformer hash
         self.read_feature_transformer(self.model.input)
         for i in range(self.model.num_ls_buckets):
             l1 = nn.Linear(2 * M.L1 // 2, M.L2 + 1)

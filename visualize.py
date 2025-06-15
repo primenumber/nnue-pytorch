@@ -589,7 +589,7 @@ def main():
 
     supported_features = ("HalfKP", "HalfKP^")
     assert args.features in supported_features
-    feature_set = features.get_feature_set_from_name(args.features)
+    feature_set = args.features
 
     from os.path import basename
 
@@ -600,7 +600,7 @@ def main():
     if args.ref_model:
         if args.ref_features:
             assert args.ref_features in supported_features
-            ref_feature_set = features.get_feature_set_from_name(args.ref_features)
+            ref_feature_set = args.ref_features
         else:
             ref_feature_set = feature_set
 
