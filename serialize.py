@@ -233,9 +233,9 @@ class NNUEReader:
         self.description = self.f.read(desc_len).decode("utf-8")
 
     def read_leb_128_array(self, dtype, shape):
-        l = self.read_int32()
-        d = self.f.read(l)
-        if len(d) != l:
+        length = self.read_int32()
+        d = self.f.read(length)
+        if len(d) != length:
             raise Exception("Unexpected end of file when reading compressed data.")
 
         res = torch.FloatTensor(decode_leb_128_array(d, reduce(operator.mul, shape, 1)))

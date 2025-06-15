@@ -80,8 +80,8 @@ def parse_ordo_file(filename, label):
         return rows
 
 
-def transpose_list_of_tuples(l):
-    return list(map(list, zip(*l)))
+def transpose_list_of_tuples(list_t):
+    return list(map(list, zip(*list_t)))
 
 
 def do_plots(out_filename, root_dirs, elo_range, loss_range, split):
