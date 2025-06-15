@@ -1,4 +1,4 @@
-from feature_block import FeatureSet
+from feature_set import FeatureSet
 import halfkp
 import halfka
 

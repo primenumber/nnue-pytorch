@@ -21,8 +21,8 @@ def test_stream(stream_type, batch_size=None):
 
 test_stream(nnue_dataset.SparseBatchProvider, 256)
 
-stream_py = nnue_bin_dataset.NNUEBinData("d8_100000.bin")
-stream_cpp = nnue_dataset.SparseBatchDataset(halfkp.NAME, "d8_100000.bin", 256)
+stream_py = nnue_bin_dataset.NNUEBinData("d8_100000.bin", "HalfKP")
+stream_cpp = nnue_dataset.SparseBatchDataset(halfkp, "d8_100000.bin", 256)
 
 stream_py_iter = iter(stream_py)
 stream_cpp_iter = iter(stream_cpp)
