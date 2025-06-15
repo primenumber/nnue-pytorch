@@ -11,7 +11,7 @@ from numba import njit
 
 
 def ascii_hist(name, x, bins=6):
-    N, X = numpy.histogram(x, bins=bins)
+    N, X = np.histogram(x, bins=bins)
     width = 50
     nmax = N.max()
 
