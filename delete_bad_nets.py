@@ -102,7 +102,7 @@ def delete_bad_nets(root_dir, num_best_to_keep=16):
                     if ckpt_epoch in worst_epochs:
                         print("Delete {}".format(ckpt_file))
                         os.remove(ckpt_file)
-                except:
+                except Exception:
                     pass
 
                 print("Keep {}".format(ckpt_file))
@@ -113,7 +113,7 @@ def delete_bad_nets(root_dir, num_best_to_keep=16):
                     if nnue_epoch in worst_epochs:
                         print("Delete {}".format(nnue_file))
                         os.remove(nnue_file)
-                except:
+                except Exception:
                     pass
 
                 print("Keep {}".format(nnue_file))

@@ -362,7 +362,7 @@ class Ranger21(TO.Optimizer):
                 param_state = self.state[p]
                 try:
                     la_params = param_state["lookahead_params"]
-                except:
+                except Exception:
                     print("no lookahead cache present.")
                     return
 
