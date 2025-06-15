@@ -1,6 +1,6 @@
-from feature_block import *
-from feature_set import *
-
+from feature_block import FeatureSet
+import halfkp
+import halfka
 
 """
 Each module that defines feature blocks must be imported here and
@@ -8,8 +8,6 @@ added to the _feature_modules list. Each such module must define a
 function `get_feature_block_clss` at module scope that returns the list
 of feature block classes in that module.
 """
-import halfkp
-import halfka
 
 _feature_modules = [halfkp, halfka]
 
