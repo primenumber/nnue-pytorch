@@ -1,9 +1,5 @@
 # Setup
-```
-python3 -m venv env
-source env/bin/activate
-pip install python-chess==0.31.4 pytorch-lightning torch matplotlib
-```
+Setup uv.
 
 # Build the fast DataLoader
 This requires a C++17 compiler.
@@ -21,40 +17,8 @@ sh compile_data_loader.bat
 # Train a network
 
 ```
-source env/bin/activate
-python train.py train_data.bin val_data.bin
+uv run main.py --config=config.yaml
 ```
-
-## Resuming from a checkpoint
-```
-python train.py --resume_from_checkpoint <path> ...
-```
-
-## Training on GPU
-```
-python train.py --gpus 1 ...
-```
-## Feature set selection
-By default the trainer uses a factorized HalfKP feature set (named "HalfKP^")
-If you wish to change the feature set used then you can use the `--features=NAME` option. For the list of available features see `--help`
-The default is:
-```
-python train.py ... --features="HalfKP^"
-```
-
-## Skipping certain fens in the training
-
-`--smart-fen-skipping` currently skips over moves where the king is in check, or where the bestMove is a capture (typical of non-quiet positions).
-`--random-fen-skipping N` skip N fens on average before using one. Uses fewer fens per game, useful with large data sets.
-
-## Current recommended training invocation
-
-```
-python train.py --smart-fen-skipping --random-fen-skipping 10 --batch-size 16384 --threads 8 --num-workers 8 --gpus 1 trainingdata validationdata 
-```
-best nets have been trained with 16B d9-scored nets, training runs >200 epochs
-
-
 
 # Export a network
 
@@ -62,29 +26,19 @@ Using either a checkpoint (`.ckpt`) or serialized model (`.pt`),
 you can export to SF NNUE format.  This will convert `last.ckpt`
 to `nn.nnue`, which you can load directly in SF.
 ```
-python serialize.py last.ckpt nn.nnue
+uv run serialize.py last.ckpt nn.nnue
 ```
 
 # Import a network
 
 Import an existing SF NNUE network to the pytorch network format.
 ```
-python serialize.py nn.nnue converted.pt
+uv run serialize.py nn.nnue converted.pt
 ```
 
 # Visualize a network
 
-Visualize a network from either a checkpoint (`.ckpt`), a serialized model (`.pt`)
-or a SF NNUE file (`.nnue`).
-```
-python visualize.py nn.nnue --features="HalfKP"
-```
-
-Visualize the difference between two networks from either a checkpoint (`.ckpt`), a serialized model (`.pt`)
-or a SF NNUE file (`.nnue`).
-```
-python visualize.py nn.nnue  --features="HalfKP" --ref-model nn.cpkt --ref-features="HalfKP^"
-```
+Currently, visualization doesn't work for shogi networks, only chess networks.
 
 # Logging
 
