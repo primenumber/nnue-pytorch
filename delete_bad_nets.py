@@ -86,15 +86,11 @@ def delete_bad_nets(root_dir, num_best_to_keep=16):
         nets = parse_ordo(ordo_filename)
         best_nets, worst_nets = split_nets_by_strength(nets, num_best_to_keep)
 
-        best_nets_by_dir, worst_nets_by_dir = get_nets_by_directory(
-            best_nets, worst_nets, num_best_to_keep
-        )
+        best_nets_by_dir, worst_nets_by_dir = get_nets_by_directory(best_nets, worst_nets, num_best_to_keep)
         for basedir, worst_nets_in_dir in worst_nets_by_dir.items():
             ckpt_files = find_ckpt_files(basedir)
             nnue_files = find_nnue_files(basedir)
-            worst_epochs = [
-                net_epoch_p.match(net_name)[1] for net_name in worst_nets_in_dir
-            ]
+            worst_epochs = [net_epoch_p.match(net_name)[1] for net_name in worst_nets_in_dir]
 
             for ckpt_file in ckpt_files:
                 try:
@@ -131,9 +127,7 @@ def show_help():
     print('following format: "nn-epoch[0-9]*\\.nnue". The network file')
     print("can be specified with a parent directory (for example")
     print('"run_0/nn-epoch100.nnue"), in which case the .ckpt file corresponding')
-    print(
-        'to this .nnue file will only be searched for in the parent ("run_0") directory.'
-    )
+    print('to this .nnue file will only be searched for in the parent ("run_0") directory.')
     print('The .ckpt files must contain "epoch=([0-9]*).*\\.ckpt".')
     print("Both ckpt and nnue files are deleted. Only nets listed in the ordo")
     print("file can be deleted. Other nets are always kept.")

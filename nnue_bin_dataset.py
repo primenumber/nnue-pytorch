@@ -132,9 +132,7 @@ class NNUEBinData(torch.utils.data.Dataset):
         ply = br.readBits(16)
         bd.fullmove_number = ply // 2
 
-        move = chess.Move(
-            from_square=chess.SQUARES[from_], to_square=chess.SQUARES[to_]
-        )
+        move = chess.Move(from_square=chess.SQUARES[from_], to_square=chess.SQUARES[to_])
 
         # 1, 0, -1
         game_result = br.readBits(8)

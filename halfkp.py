@@ -20,9 +20,7 @@ def halfkp_idx(is_white_pov: bool, king_sq: int, sq: int, p: chess.Piece):
 
 class Features(FeatureBlock):
     def __init__(self):
-        super(Features, self).__init__(
-            "HalfKP", 0x5D69D5B8, OrderedDict([("HalfKP", NUM_PLANES * NUM_SQ)])
-        )
+        super(Features, self).__init__("HalfKP", 0x5D69D5B8, OrderedDict([("HalfKP", NUM_PLANES * NUM_SQ)]))
 
     def get_active_features(self, board: chess.Board):
         def piece_features(turn):

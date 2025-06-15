@@ -109,7 +109,7 @@ def draw_each_tag():
         plt.title(tag)
 
         now = datetime.datetime.now()
-        filename = f'image.{now.strftime("%Y-%m-%d-%H-%M-%S")}.{GRAPH_INDEX}.{tag}.png'
+        filename = f"image.{now.strftime('%Y-%m-%d-%H-%M-%S')}.{GRAPH_INDEX}.{tag}.png"
         GRAPH_INDEX += 1
         plt.savefig(filename)
 
@@ -139,7 +139,7 @@ def draw_all():
     plt.grid()
 
     now = datetime.datetime.now()
-    filename = f'image.{now.strftime("%Y-%m-%d-%H-%M-%S")}.{GRAPH_INDEX}.all.png'
+    filename = f"image.{now.strftime('%Y-%m-%d-%H-%M-%S')}.{GRAPH_INDEX}.all.png"
     GRAPH_INDEX += 1
     plt.savefig(filename)
 

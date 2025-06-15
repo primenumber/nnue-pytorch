@@ -92,14 +92,10 @@ def gather_statistics_from_data(filename, count, bucket_size):
     # we pass whatever feature set because we have to pass something
     # it doesn't actually matter, all we care about are the scores and outcomes
     # this is just the easiest way to do it
-    dataset = nnue_dataset.SparseBatchDataset(
-        "HalfKP", filename, batch_size, cyclic, smart_fen_skipping
-    )
+    dataset = nnue_dataset.SparseBatchDataset("HalfKP", filename, batch_size, cyclic, smart_fen_skipping)
     batches = iter(dataset)
     num_batches = (count + batch_size - 1) // batch_size
-    data = gather_statistics_from_batches(
-        (next(batches) for i in range(num_batches)), bucket_size
-    )
+    data = gather_statistics_from_batches((next(batches) for i in range(num_batches)), bucket_size)
     return data
 
 

@@ -69,9 +69,7 @@ class NNUE(pl.LightningModule):
         #       Currently we support only a single feature block.
         if len(self.feature_set.features) > 1:
             raise Exception(
-                "Cannot change feature set from {} to {}.".format(
-                    self.feature_set.name, new_feature_set.name
-                )
+                "Cannot change feature set from {} to {}.".format(self.feature_set.name, new_feature_set.name)
             )
 
         # Currently we only support conversion for feature sets with
@@ -93,17 +91,13 @@ class NNUE(pl.LightningModule):
         if old_feature_block.name == next(iter(new_feature_block.factors)):
             # We can just extend with zeros since it's unfactorized -> factorized
             weights = self.input.weight
-            padding = weights.new_zeros(
-                (weights.shape[0], new_feature_block.num_virtual_features)
-            )
+            padding = weights.new_zeros((weights.shape[0], new_feature_block.num_virtual_features))
             weights = torch.cat([weights, padding], dim=1)
             self.input.weight = nn.Parameter(weights)
             self.feature_set = new_feature_set
         else:
             raise Exception(
-                "Cannot change feature set from {} to {}.".format(
-                    self.feature_set.name, new_feature_set.name
-                )
+                "Cannot change feature set from {} to {}.".format(self.feature_set.name, new_feature_set.name)
             )
 
     def forward(self, us, them, w_in, b_in):
@@ -137,18 +131,12 @@ class NNUE(pl.LightningModule):
         p = (score / scaling).sigmoid()
 
         epsilon = 1e-12
-        teacher_entropy = -(
-            p * (p + epsilon).log() + (1.0 - p) * (1.0 - p + epsilon).log()
-        )
-        outcome_entropy = -(
-            t * (t + epsilon).log() + (1.0 - t) * (1.0 - t + epsilon).log()
-        )
+        teacher_entropy = -(p * (p + epsilon).log() + (1.0 - p) * (1.0 - p + epsilon).log())
+        outcome_entropy = -(t * (t + epsilon).log() + (1.0 - t) * (1.0 - t + epsilon).log())
         teacher_loss = -(p * F.logsigmoid(q) + (1.0 - p) * F.logsigmoid(-q))
         outcome_loss = -(t * F.logsigmoid(q) + (1.0 - t) * F.logsigmoid(-q))
         result = self.lambda_ * teacher_loss + (1.0 - self.lambda_) * outcome_loss
-        entropy = (
-            self.lambda_ * teacher_entropy + (1.0 - self.lambda_) * outcome_entropy
-        )
+        entropy = self.lambda_ * teacher_entropy + (1.0 - self.lambda_) * outcome_entropy
         loss = result.mean() - entropy.mean()
         self.log(loss_type, loss)
         return loss

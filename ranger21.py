@@ -142,11 +142,8 @@ class Ranger21(TO.Optimizer):
         warmup_pct_default=0.22,
         logging_active=True,
     ):
-
         # todo - checks on incoming params
-        defaults = dict(
-            lr=lr, momentum=momentum, betas=betas, eps=eps, weight_decay=weight_decay
-        )
+        defaults = dict(lr=lr, momentum=momentum, betas=betas, eps=eps, weight_decay=weight_decay)
         super().__init__(params, defaults)
 
         # core
@@ -195,16 +192,12 @@ class Ranger21(TO.Optimizer):
         self.cheb_schedule = None
         if self.use_cheb:
             if num_epochs is None:
-                raise ValueError(
-                    "can't produce chebs without num epochs info being passed in"
-                )
+                raise ValueError("can't produce chebs without num epochs info being passed in")
             self.cheb_schedule = get_chebs(num_epochs)
 
         self.total_iterations = num_epochs * num_batches_per_epoch
         if not self.total_iterations:
-            raise ValueError(
-                "missing total iterations, which is calced from num epochs and num iters per epoch param"
-            )
+            raise ValueError("missing total iterations, which is calced from num epochs and num iters per epoch param")
 
         # lr
         self.starting_lr = lr
@@ -218,9 +211,7 @@ class Ranger21(TO.Optimizer):
         self.warmup_pct_default = warmup_pct_default
 
         if num_warmup_iterations is None:
-            beta_warmup_iters = math.ceil(
-                (2 / (1 - betas[1]))
-            )  # default untuned linear warmup
+            beta_warmup_iters = math.ceil((2 / (1 - betas[1])))  # default untuned linear warmup
 
             beta_pct = beta_warmup_iters / self.total_iterations
             # print(f"beta_warmup_pct = {beta_pct}")
@@ -242,12 +233,8 @@ class Ranger21(TO.Optimizer):
 
         if self.warmdown_active:
             self.warm_down_start_pct = warmdown_start_pct
-            self.start_warm_down = int(
-                self.warm_down_start_pct * num_epochs * num_batches_per_epoch
-            )
-            self.warmdown_total_iterations = (
-                self.total_iterations - self.start_warm_down
-            )
+            self.start_warm_down = int(self.warm_down_start_pct * num_epochs * num_batches_per_epoch)
+            self.warmdown_total_iterations = self.total_iterations - self.start_warm_down
             self.warmdown_displayed = False  # print when warmdown begins...
             self.warmup_curr_pct = 0.01  # used to verify warmup reaches full set point.
 
@@ -298,18 +285,14 @@ class Ranger21(TO.Optimizer):
     # show settings at init or if called
     def show_schedule(self):
         if not self.tracking_lr:
-            print(
-                "No data from training yet.  Please train and then use this to show the lr curves"
-            )
+            print("No data from training yet.  Please train and then use this to show the lr curves")
             return
         x = self.tracking_lr
         plt.plot(x)
         maxlr = max(x)
         minlr = min(x)
         startlr = x[0]
-        plt.title(
-            f"Ranger21 learning rate schedule\nStart={startlr:.2E}\nMax ={maxlr:.2E}\n,Min={minlr:.2E}\n"
-        )
+        plt.title(f"Ranger21 learning rate schedule\nStart={startlr:.2E}\nMax ={maxlr:.2E}\n,Min={minlr:.2E}\n")
         plt.show()
 
     def show_settings(self):
@@ -324,9 +307,7 @@ class Ranger21(TO.Optimizer):
         if self.use_adabelief:
             print("using AdaBelief for variance computation")
         if self.use_warmup:
-            print(
-                f"Warm-up: {self.warmup_type} warmup, over {self.num_warmup_iters} iterations\n"
-            )
+            print(f"Warm-up: {self.warmup_type} warmup, over {self.num_warmup_iters} iterations\n")
         if self.lookahead_active:
             print(
                 f"Lookahead active, merging every {self.lookahead_mergetime} steps, with blend factor of {self.lookahead_alpha}"
@@ -348,7 +329,7 @@ class Ranger21(TO.Optimizer):
 
         if self.warmdown_active:
             print(
-                f"\nWarm-down: Linear warmdown, starting at {self.warm_down_start_pct*100}%, iteration {self.start_warm_down} of {self.total_iterations}"
+                f"\nWarm-down: Linear warmdown, starting at {self.warm_down_start_pct * 100}%, iteration {self.start_warm_down} of {self.total_iterations}"
             )
             print(f"warm down will decay until {self.min_lr} lr")
 
@@ -401,9 +382,7 @@ class Ranger21(TO.Optimizer):
         elif xlen == 4:  # conv kernels
             dim = (1, 2, 3)
         else:
-            dim = tuple(
-                [x for x in range(1, xlen)]
-            )  # create 1,..., xlen-1 tuple, while avoiding last dim ...
+            dim = tuple([x for x in range(1, xlen)])  # create 1,..., xlen-1 tuple, while avoiding last dim ...
 
         return x.norm(dim=dim, keepdim=keepdim, p=2.0)
 
@@ -428,7 +407,6 @@ class Ranger21(TO.Optimizer):
         p.grad.detach().copy_(new_grads)
 
     def warmup_dampening(self, lr, step):
-
         style = self.warmup_type
         warmup = self.num_warmup_iters
 
@@ -437,11 +415,8 @@ class Ranger21(TO.Optimizer):
 
         if step > warmup:
             if not self.warmup_complete:
-
                 if not self.warmup_curr_pct == 1.0:
-                    print(
-                        f"Error - lr did not achieve full set point from warmup, currently {self.warmup_curr_pct}"
-                    )
+                    print(f"Error - lr did not achieve full set point from warmup, currently {self.warmup_curr_pct}")
 
                 self.warmup_complete = True
                 print(f"\n** Ranger21 update = Warmup complete - lr set to {lr}\n")
@@ -467,9 +442,7 @@ class Ranger21(TO.Optimizer):
         if iteration > self.start_warm_down - 1:
             # print when starting
             if not self.warmdown_displayed:
-                print(
-                    f"\n** Ranger21 update: Warmdown starting now.  Current iteration = {iteration}....\n"
-                )
+                print(f"\n** Ranger21 update: Warmdown starting now.  Current iteration = {iteration}....\n")
                 self.warmdown_displayed = True
 
             warmdown_iteration = (
@@ -532,7 +505,6 @@ class Ranger21(TO.Optimizer):
                 self.backup_and_load_cache()
 
     def get_cheb_lr(self, lr, iteration):
-
         # first confirm we are done with warmup
         if self.use_warmup:
             if iteration < self.num_warmup_iters + 1:
@@ -568,7 +540,6 @@ class Ranger21(TO.Optimizer):
     # @staticmethod
     @torch.no_grad()
     def step(self, closure=None):
-
         loss = None
         if closure is not None and isinstance(closure, collections.abc.Callable):
             with torch.enable_grad():
@@ -604,31 +575,21 @@ class Ranger21(TO.Optimizer):
                     # print("init state")
                     state["step"] = 0
                     # Exponential moving average of gradient values
-                    state["grad_ma"] = torch.zeros_like(
-                        p, memory_format=torch.preserve_format
-                    )
+                    state["grad_ma"] = torch.zeros_like(p, memory_format=torch.preserve_format)
                     # Exponential moving average of squared gradient values
-                    state["variance_ma"] = torch.zeros_like(
-                        p, memory_format=torch.preserve_format
-                    )
+                    state["variance_ma"] = torch.zeros_like(p, memory_format=torch.preserve_format)
 
                     if self.lookahead_active:
                         state["lookahead_params"] = torch.zeros_like(p.data)
                         state["lookahead_params"].copy_(p.data)
 
                     if self.use_adabelief:
-                        state["variance_ma_belief"] = torch.zeros_like(
-                            p, memory_format=torch.preserve_format
-                        )
+                        state["variance_ma_belief"] = torch.zeros_like(p, memory_format=torch.preserve_format)
                     if self.momentum_pnm:
-                        state["neg_grad_ma"] = torch.zeros_like(
-                            p, memory_format=torch.preserve_format
-                        )
+                        state["neg_grad_ma"] = torch.zeros_like(p, memory_format=torch.preserve_format)
 
                         # Maintains max of all exp. moving avg. of sq. grad. values
-                        state["max_variance_ma"] = torch.zeros_like(
-                            p, memory_format=torch.preserve_format
-                        )
+                        state["max_variance_ma"] = torch.zeros_like(p, memory_format=torch.preserve_format)
 
                     # Cumulative products of beta1
                     # state["beta1_prod"] = torch.ones_like(
@@ -669,9 +630,7 @@ class Ranger21(TO.Optimizer):
                 if self.use_adabelief:
                     grad_ma.mul_(beta1).add_(grad, alpha=1 - beta1)
                     grad_residual = grad - grad_ma
-                    variance_ma_belief.mul_(beta2).addcmul(
-                        grad_residual, grad_residual, value=1 - beta2
-                    )
+                    variance_ma_belief.mul_(beta2).addcmul(grad_residual, grad_residual, value=1 - beta2)
                 # print(f"upper loop grad = {grad.shape}")
                 variance_ma.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
                 # print(f"variance_ma, grad adjusted")
@@ -693,8 +652,8 @@ class Ranger21(TO.Optimizer):
         if not self.param_size:
             self.param_size = param_size
             print("params size saved")
-            print(f"total param groups = {i+1}")
-            print(f"total params in groups = {j+1}")
+            print(f"total param groups = {i + 1}")
+            print(f"total params in groups = {j + 1}")
 
         if not self.param_size:
             raise ValueError("failed to set param size")
@@ -767,9 +726,7 @@ class Ranger21(TO.Optimizer):
             if self.normloss_active:
                 # apply norm loss
                 unorm = self.unit_norm(p.data)
-                correction = (
-                    2 * self.normloss_factor * (1 - torch.div(1, unorm + self.eps))
-                )
+                correction = 2 * self.normloss_factor * (1 - torch.div(1, unorm + self.eps))
                 p.mul_(1 - lr * correction)
 
             # innner loop, params
@@ -789,9 +746,7 @@ class Ranger21(TO.Optimizer):
                             state["x0"] = torch.clone(p.data).detach()
 
                     if momentum != 0.0 and grad.is_sparse:
-                        raise RuntimeError(
-                            "momentum != 0 is not compatible with sparse gradients"
-                        )
+                        raise RuntimeError("momentum != 0 is not compatible with sparse gradients")
 
                     # centralize gradients
                     if self.use_gc:
@@ -847,7 +802,6 @@ class Ranger21(TO.Optimizer):
                         variance_ma_belief = state["variance_ma_belief"]
 
                     if self.momentum_pnm:
-
                         max_variance_ma = state["max_variance_ma"]
 
                         if state["step"] % 2 == 1:
@@ -868,9 +822,7 @@ class Ranger21(TO.Optimizer):
                         # Maintains the maximum of all 2nd moment running avg. till now
                         torch.max(max_variance_ma, variance_ma, out=variance_ma)
                         # Use the max. for normalizing running avg. of gradient
-                        denom = (variance_ma.sqrt() / math.sqrt(bias_correction2)).add_(
-                            group["eps"]
-                        )
+                        denom = (variance_ma.sqrt() / math.sqrt(bias_correction2)).add_(group["eps"])
 
                     # centralize gradients
                     if self.use_gc:

@@ -36,43 +36,25 @@ class SparseBatch(ctypes.Structure):
 
     def get_tensors(self):
         white_values = torch.from_numpy(
-            np.ctypeslib.as_array(
-                self.white_values, shape=(self.num_active_white_features,)
-            )
+            np.ctypeslib.as_array(self.white_values, shape=(self.num_active_white_features,))
         )
         black_values = torch.from_numpy(
-            np.ctypeslib.as_array(
-                self.black_values, shape=(self.num_active_black_features,)
-            )
+            np.ctypeslib.as_array(self.black_values, shape=(self.num_active_black_features,))
         )
         iw = torch.transpose(
-            torch.from_numpy(
-                np.ctypeslib.as_array(
-                    self.white, shape=(self.num_active_white_features, 2)
-                )
-            ),
+            torch.from_numpy(np.ctypeslib.as_array(self.white, shape=(self.num_active_white_features, 2))),
             0,
             1,
         ).long()
         ib = torch.transpose(
-            torch.from_numpy(
-                np.ctypeslib.as_array(
-                    self.black, shape=(self.num_active_white_features, 2)
-                )
-            ),
+            torch.from_numpy(np.ctypeslib.as_array(self.black, shape=(self.num_active_white_features, 2))),
             0,
             1,
         ).long()
-        us = torch.from_numpy(
-            np.ctypeslib.as_array(self.is_white, shape=(self.size, 1))
-        )
+        us = torch.from_numpy(np.ctypeslib.as_array(self.is_white, shape=(self.size, 1)))
         them = 1.0 - us
-        outcome = torch.from_numpy(
-            np.ctypeslib.as_array(self.outcome, shape=(self.size, 1))
-        )
-        score = torch.from_numpy(
-            np.ctypeslib.as_array(self.score, shape=(self.size, 1))
-        )
+        outcome = torch.from_numpy(np.ctypeslib.as_array(self.outcome, shape=(self.size, 1)))
+        score = torch.from_numpy(np.ctypeslib.as_array(self.score, shape=(self.size, 1)))
         white = torch.sparse_coo_tensor(iw, white_values, (self.size, self.num_inputs))
         black = torch.sparse_coo_tensor(ib, black_values, (self.size, self.num_inputs))
         white._coalesced_(True)
@@ -101,7 +83,6 @@ class TrainingDataProvider:
         filtered=False,
         random_fen_skipping=0,
     ):
-
         self.feature_set = feature_set.name.encode("utf-8")
         self.create_stream = create_stream
         self.destroy_stream = destroy_stream
@@ -193,9 +174,7 @@ def make_sparse_batch_from_fens(feature_set, fens, scores, plies, results):
         plies_[i] = v
     for i, v in enumerate(results):
         results_[i] = v
-    b = get_sparse_batch_from_fens(
-        feature_set.name.encode("utf-8"), len(fens), fens_, scores_, plies_, results_
-    )
+    b = get_sparse_batch_from_fens(feature_set.name.encode("utf-8"), len(fens), fens_, scores_, plies_, results_)
     return b
 
 

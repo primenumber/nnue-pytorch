@@ -28,9 +28,7 @@ class FeatureSet:
         self.hash = _calculate_features_hash(features)
         self.name = "+".join(feature.name for feature in features)
         self.num_real_features = sum(feature.num_real_features for feature in features)
-        self.num_virtual_features = sum(
-            feature.num_virtual_features for feature in features
-        )
+        self.num_virtual_features = sum(feature.num_virtual_features for feature in features)
         self.num_features = sum(feature.num_features for feature in features)
 
     """
@@ -45,9 +43,7 @@ class FeatureSet:
         offset = 0
         for feature in self.features:
             if feature.num_virtual_features:
-                ranges.append(
-                    (offset + feature.num_real_features, offset + feature.num_features)
-                )
+                ranges.append((offset + feature.num_real_features, offset + feature.num_features))
             offset += feature.num_features
 
         return ranges

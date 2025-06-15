@@ -31,9 +31,7 @@ class NNUEVisualizer:
 
             destname = join(
                 self.args.save_dir,
-                "{}{}.jpg".format(
-                    "" if self.args.label is None else self.args.label + "_", name
-                ),
+                "{}{}.jpg".format("" if self.args.label is None else self.args.label + "_", name),
             )
             print("Saving {}".format(destname))
             plt.savefig(destname)
@@ -41,13 +39,9 @@ class NNUEVisualizer:
     def coalesce_ft_weights(self, model, layer):
         weight = layer.weight.data
         indices = model.feature_set.get_virtual_to_real_features_gather_indices()
-        weight_coalesced = weight.new_zeros(
-            (weight.shape[0], model.feature_set.num_real_features)
-        )
+        weight_coalesced = weight.new_zeros((weight.shape[0], model.feature_set.num_real_features))
         for i_real, is_virtual in enumerate(indices):
-            weight_coalesced[:, i_real] = sum(
-                weight[:, i_virtual] for i_virtual in is_virtual
-            )
+            weight_coalesced[:, i_real] = sum(weight[:, i_virtual] for i_virtual in is_virtual)
 
         return weight_coalesced
 
@@ -100,9 +94,7 @@ class NNUEVisualizer:
         totaldim = totalx * totaly
 
         if not self.args.no_input_weights:
-            default_order = (
-                self.args.input_weights_order == "piece-centric-flipped-king"
-            )
+            default_order = self.args.input_weights_order == "piece-centric-flipped-king"
 
             # Calculate masks for first input neuron.
             img_mask = []
@@ -114,9 +106,7 @@ class NNUEVisualizer:
                 piece = pi // 64
                 rank = (pi % 64) // 8
 
-                if pi == 640 or (
-                    (rank == 0 or rank == 7) and (piece == 0 or piece == 1)
-                ):
+                if pi == 640 or ((rank == 0 or rank == 7) and (piece == 0 or piece == 1)):
                     # Ignore unused weights for "Shogi piece drop" and pawns on first/last rank.
                     continue
 
@@ -138,11 +128,7 @@ class NNUEVisualizer:
                         8 * kipos[0] + pipos[0],
                         8 * (7 - kipos[1]) + (7 - pipos[1]),
                     ]
-                    d = (
-                        -2 * (7 - kipos[1]) - 1
-                        if piece < 2
-                        else 48 + (piece // 2 - 1) * 64
-                    )
+                    d = -2 * (7 - kipos[1]) - 1 if piece < 2 else 48 + (piece // 2 - 1) * 64
 
                 jhd = j % hd
                 x = inpos[0] + widthx * (jhd % numx) + (piece % 2) * 64
@@ -160,9 +146,9 @@ class NNUEVisualizer:
             for k in range(hd):
                 offset_x = k % numx
                 offset_y = k // numx
-                img[img_mask + offset_x * widthx + totalx * widthy * offset_y] = (
-                    weights[weights_mask + self.sorted_input_neurons[k]]
-                )
+                img[img_mask + offset_x * widthx + totalx * widthy * offset_y] = weights[
+                    weights_mask + self.sorted_input_neurons[k]
+                ]
 
             if self.args.input_weights_auto_scale:
                 vmin = None
@@ -244,19 +230,11 @@ class NNUEVisualizer:
                 else:
                     # King centric.
                     if piece_type == 0:
-                        piece_square_name = chess.square_name(
-                            x_ % 8 + 8 * (6 - ((y_ - 8) % 6))
-                        )
-                        king_square_name = chess.square_name(
-                            x_ // 8 + 8 * (7 - (y_ - 8) // 6)
-                        )
+                        piece_square_name = chess.square_name(x_ % 8 + 8 * (6 - ((y_ - 8) % 6)))
+                        king_square_name = chess.square_name(x_ // 8 + 8 * (7 - (y_ - 8) // 6))
                     else:
-                        piece_square_name = chess.square_name(
-                            x_ % 8 + 8 * (7 - (y_ % 8))
-                        )
-                        king_square_name = chess.square_name(
-                            x_ // 8 + 8 * (7 - y_ // 8)
-                        )
+                        piece_square_name = chess.square_name(x_ % 8 + 8 * (7 - (y_ % 8)))
+                        king_square_name = chess.square_name(x_ // 8 + 8 * (7 - y_ // 8))
 
                 neuron_id = int(numx * (y // widthy) + x // widthx)
                 if self.args.sort_input_neurons:
@@ -281,13 +259,7 @@ class NNUEVisualizer:
                 plt.hist(
                     img,
                     log=True,
-                    bins=(
-                        np.arange(
-                            int(np.min(img) * 127) - 1, int(np.max(img) * 127) + 3
-                        )
-                        - 0.5
-                    )
-                    / 127,
+                    bins=(np.arange(int(np.min(img) * 127) - 1, int(np.max(img) * 127) + 3) - 0.5) / 127,
                 )
                 plt.title(hist_title_template.format(LABEL=self.args.label))
                 plt.tight_layout()
@@ -307,9 +279,7 @@ class NNUEVisualizer:
 
             for i in range(N):
                 l1_weights[2 * i] = l1_weights_[i][self.sorted_input_neurons]
-                l1_weights[2 * i + 1] = l1_weights_[i][
-                    self.M + self.sorted_input_neurons
-                ]
+                l1_weights[2 * i + 1] = l1_weights_[i][self.M + self.sorted_input_neurons]
 
             if self.args.fc_weights_auto_scale:
                 vmin = None
@@ -438,9 +408,7 @@ class NNUEVisualizer:
             output_bias = self.model.output.bias.data.numpy()
 
             if self.args.ref_model:
-                input_biases -= self.ref_model.input.bias.data.numpy()[
-                    self.sorted_input_neurons
-                ]
+                input_biases -= self.ref_model.input.bias.data.numpy()[self.sorted_input_neurons]
                 l1_biases -= self.ref_model.l1.bias.data.numpy()
                 l2_biases -= self.ref_model.l2.bias.data.numpy()
                 output_bias -= self.ref_model.output.bias.data.numpy()
@@ -482,9 +450,7 @@ def load_model(filename, feature_set):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Visualizes networks in ckpt, pt and nnue format."
-    )
+    parser = argparse.ArgumentParser(description="Visualizes networks in ckpt, pt and nnue format.")
     parser.add_argument("model", help="Source model (can be .ckpt, .pt or .nnue)")
     parser.add_argument(
         "--ref-model",
@@ -544,12 +510,8 @@ def main():
         action="store_true",
         help="Use auto-scale for the color map range for fully-connected layer weights. This ignores fc-weights-vmin and fc-weights-vmax.",
     )
-    parser.add_argument(
-        "--no-hist", action="store_true", help="Don't generate any histograms."
-    )
-    parser.add_argument(
-        "--no-biases", action="store_true", help="Don't generate plots for biases."
-    )
+    parser.add_argument("--no-hist", action="store_true", help="Don't generate any histograms.")
+    parser.add_argument("--no-biases", action="store_true", help="Don't generate plots for biases.")
     parser.add_argument(
         "--no-input-weights",
         action="store_true",
@@ -572,12 +534,8 @@ def main():
         type=int,
         help="Default height of all plots (in pixels).",
     )
-    parser.add_argument(
-        "--save-dir", type=str, required=False, help="Save the plots in this directory."
-    )
-    parser.add_argument(
-        "--dont-show", action="store_true", help="Don't show the plots."
-    )
+    parser.add_argument("--save-dir", type=str, required=False, help="Save the plots in this directory.")
+    parser.add_argument("--dont-show", action="store_true", help="Don't show the plots.")
     parser.add_argument(
         "--label",
         type=str,
@@ -606,11 +564,7 @@ def main():
 
         ref_model = load_model(args.ref_model, ref_feature_set)
 
-        print(
-            "Visualizing difference between {} and {}".format(
-                args.model, args.ref_model
-            )
-        )
+        print("Visualizing difference between {} and {}".format(args.model, args.ref_model))
 
         from os.path import basename
 

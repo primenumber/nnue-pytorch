@@ -31,12 +31,8 @@ class NNUEQuantizedWriter:
         self.int32(0x7AF32F17)  # version
         self.int32(0x3E5AA6EE)  # halfkp network hash
         description = b"Features=HalfKP(Friend)[41024->256x2],"
-        description += (
-            b"Network=AffineTransform[1<-32](ClippedReLU[32](AffineTransform[32<-32]"
-        )
-        description += (
-            b"(ClippedReLU[32](AffineTransform[32<-512](InputSlice[512(0:512)])))))"
-        )
+        description += b"Network=AffineTransform[1<-32](ClippedReLU[32](AffineTransform[32<-32]"
+        description += b"(ClippedReLU[32](AffineTransform[32<-512](InputSlice[512(0:512)])))))"
         self.int32(len(description))  # Network definition
         self.buf.extend(description)
 
@@ -47,9 +43,7 @@ class NNUEQuantizedWriter:
         self.buf.extend(bias.flatten().numpy().astype(numpy.int16).tobytes())
         weight = layer.weight().data
         # weights stored as [41024][256], so we need to transpose the pytorch [256][41024]
-        self.buf.extend(
-            weight.transpose(0, 1).flatten().numpy().astype(numpy.int16).tobytes()
-        )
+        self.buf.extend(weight.transpose(0, 1).flatten().numpy().astype(numpy.int16).tobytes())
 
     def write_fc_layer(self, layer, is_output=False):
         # FC layers are stored as int8 weights, and int32 biases

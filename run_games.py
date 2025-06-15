@@ -21,13 +21,9 @@ def convert_ckpt(root_dir):
     # run96/run0/default/version_0/checkpoints/epoch=3.ckpt -> run96/run0/nn-epoch3.nnue
     for ckpt in ckpts:
         nnue_file_name = re.sub("default/version_[0-9]+/checkpoints/", "", ckpt)
-        nnue_file_name = re.sub(
-            r"epoch\=([0-9]+).*\.ckpt", r"nn-epoch\1.nnue", nnue_file_name
-        )
+        nnue_file_name = re.sub(r"epoch\=([0-9]+).*\.ckpt", r"nn-epoch\1.nnue", nnue_file_name)
         if not os.path.exists(nnue_file_name):
-            command = "{} serialize.py {} {} ".format(
-                sys.executable, ckpt, nnue_file_name
-            )
+            command = "{} serialize.py {} {} ".format(sys.executable, ckpt, nnue_file_name)
             ret = os.system(command)
             if ret != 0:
                 print("Error serializing!")
@@ -80,15 +76,12 @@ def run_match(
         stockfish_test = stockfish_base
 
     pgn_file_name = os.path.join(root_dir, "out.pgn")
-    command = "{} -each tc=4+0.04 option.Hash=8 option.Threads=1 -gauntlet -games 200 -rounds 1 -concurrency {}".format(
-        c_chess_exe, concurrency
-    )
     command = (
-        command
-        + " -openings file={} order=random -repeat -resign 3 700 -draw 8 10".format(
-            book_file_name
+        "{} -each tc=4+0.04 option.Hash=8 option.Threads=1 -gauntlet -games 200 -rounds 1 -concurrency {}".format(
+            c_chess_exe, concurrency
         )
     )
+    command = command + " -openings file={} order=random -repeat -resign 3 700 -draw 8 10".format(book_file_name)
     command = command + " -engine cmd={} name=master".format(stockfish_base)
     for net in best:
         command = command + " -engine cmd={} name={} option.EvalFile={}".format(
@@ -98,9 +91,7 @@ def run_match(
 
     print("Running match with c-chess-cli ... {}".format(pgn_file_name), flush=True)
     c_chess_out = open(os.path.join(root_dir, "c_chess.out"), "w")
-    process = subprocess.Popen(
-        "stdbuf -o0 " + command, stdout=subprocess.PIPE, shell=True
-    )
+    process = subprocess.Popen("stdbuf -o0 " + command, stdout=subprocess.PIPE, shell=True)
     seen = {}
     for line in process.stdout:
         line = line.decode("utf-8")
@@ -160,9 +151,7 @@ def run_round(
 
     # provide the top 3 nets
     print("Best nets so far:")
-    ordo_scores = dict(
-        sorted(ordo_scores.items(), key=lambda item: item[1][0], reverse=True)
-    )
+    ordo_scores = dict(sorted(ordo_scores.items(), key=lambda item: item[1][0], reverse=True))
     count = 0
     for net in ordo_scores:
         print("   {} : {} +- {}".format(net, ordo_scores[net][0], ordo_scores[net][1]))

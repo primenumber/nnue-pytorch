@@ -143,9 +143,7 @@ class NNUEWriter:
     def write_fc_layer(self, model, layer, is_output=False):
         # FC layers are stored as int8 weights, and int32 biases
         kWeightScaleHidden = model.weight_scale_hidden
-        kWeightScaleOut = (
-            model.nnue2score * model.weight_scale_out / model.quantized_one
-        )
+        kWeightScaleOut = model.nnue2score * model.weight_scale_out / model.quantized_one
         kWeightScale = kWeightScaleOut if is_output else kWeightScaleHidden
         kBiasScaleOut = model.weight_scale_out * model.nnue2score
         kBiasScaleHidden = model.weight_scale_hidden * model.quantized_one
@@ -158,16 +156,9 @@ class NNUEWriter:
         weight = layer.weight.data
         clipped = torch.count_nonzero(weight.clamp(-kMaxWeight, kMaxWeight) - weight)
         total_elements = torch.numel(weight)
-        clipped_max = torch.max(
-            torch.abs(weight.clamp(-kMaxWeight, kMaxWeight) - weight)
-        )
+        clipped_max = torch.max(torch.abs(weight.clamp(-kMaxWeight, kMaxWeight) - weight))
 
-        weight = (
-            weight.clamp(-kMaxWeight, kMaxWeight)
-            .mul(kWeightScale)
-            .round()
-            .to(torch.int8)
-        )
+        weight = weight.clamp(-kMaxWeight, kMaxWeight).mul(kWeightScale).round().to(torch.int8)
 
         ascii_hist("fc bias:", bias.numpy())
         print(
@@ -213,15 +204,9 @@ class NNUEReader:
             self.read_fc_layer(l2)
             self.read_fc_layer(output, is_output=True)
 
-            self.model.layer_stacks.l1.weight.data[
-                i * (M.L2 + 1) : (i + 1) * (M.L2 + 1), :
-            ] = l1.weight
-            self.model.layer_stacks.l1.bias.data[
-                i * (M.L2 + 1) : (i + 1) * (M.L2 + 1)
-            ] = l1.bias
-            self.model.layer_stacks.l2.weight.data[i * M.L3 : (i + 1) * M.L3, :] = (
-                l2.weight
-            )
+            self.model.layer_stacks.l1.weight.data[i * (M.L2 + 1) : (i + 1) * (M.L2 + 1), :] = l1.weight
+            self.model.layer_stacks.l1.bias.data[i * (M.L2 + 1) : (i + 1) * (M.L2 + 1)] = l1.bias
+            self.model.layer_stacks.l2.weight.data[i * M.L3 : (i + 1) * M.L3, :] = l2.weight
             self.model.layer_stacks.l2.bias.data[i * M.L3 : (i + 1) * M.L3] = l2.bias
             self.model.layer_stacks.output.weight.data[i : (i + 1), :] = output.weight
             self.model.layer_stacks.output.bias.data[i : (i + 1)] = output.bias
@@ -270,20 +255,14 @@ class NNUEReader:
             raise Exception("Invalid compression method.")
 
     def read_feature_transformer(self, layer):
-        layer.bias.data = self.tensor(np.int16, layer.bias.shape).divide(
-            self.model.quantized_one
-        )
+        layer.bias.data = self.tensor(np.int16, layer.bias.shape).divide(self.model.quantized_one)
         # weights stored as [41024][256], so we need to transpose the pytorch [256][41024]
         weights = self.tensor(np.int16, layer.weight.shape[::-1])
         layer.weight.data = weights.divide(self.model.quantized_one).transpose(0, 1)
 
     def read_fc_layer(self, layer, is_output=False):
         kWeightScaleHidden = self.model.weight_scale_hidden
-        kWeightScaleOut = (
-            self.model.nnue2score
-            * self.model.weight_scale_out
-            / self.model.quantized_one
-        )
+        kWeightScaleOut = self.model.nnue2score * self.model.weight_scale_out / self.model.quantized_one
         kWeightScale = kWeightScaleOut if is_output else kWeightScaleHidden
         kBiasScaleOut = self.model.weight_scale_out * self.model.nnue2score
         kBiasScaleHidden = self.model.weight_scale_hidden * self.model.quantized_one
@@ -297,9 +276,7 @@ class NNUEReader:
         layer.weight.data = self.tensor(np.int8, padded_shape).divide(kWeightScale)
 
         # Strip padding.
-        layer.weight.data = layer.weight.data[
-            : non_padded_shape[0], : non_padded_shape[1]
-        ]
+        layer.weight.data = layer.weight.data[: non_padded_shape[0], : non_padded_shape[1]]
 
     def read_int32(self, expected=None):
         v = struct.unpack("<I", self.f.read(4))[0]
@@ -309,9 +286,7 @@ class NNUEReader:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Converts files between ckpt and nnue format."
-    )
+    parser = argparse.ArgumentParser(description="Converts files between ckpt and nnue format.")
     parser.add_argument("source", help="Source file (can be .ckpt, .pt or .nnue)")
     parser.add_argument("target", help="Target file (can be .pt or .nnue)")
     parser.add_argument(

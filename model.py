@@ -13,13 +13,9 @@ L3 = 64
 def coalesce_ft_weights(model, layer):
     weight = layer.weight.data
     indices = model.feature_set.get_virtual_to_real_features_gather_indices()
-    weight_coalesced = weight.new_zeros(
-        (weight.shape[0], model.feature_set.num_real_features)
-    )
+    weight_coalesced = weight.new_zeros((weight.shape[0], model.feature_set.num_real_features))
     for i_real, is_virtual in enumerate(indices):
-        weight_coalesced[:, i_real] = sum(
-            weight[:, i_virtual] for i_virtual in is_virtual
-        )
+        weight_coalesced[:, i_real] = sum(weight[:, i_virtual] for i_virtual in is_virtual)
     return weight_coalesced
 
 
@@ -63,9 +59,7 @@ class LayerStacks(nn.Module):
 
             for i in range(1, self.count):
                 # Force all layer stacks to be initialized in the same way.
-                l1_weight[i * (L2 + 1) : (i + 1) * (L2 + 1), :] = l1_weight[
-                    0 : (L2 + 1), :
-                ]
+                l1_weight[i * (L2 + 1) : (i + 1) * (L2 + 1), :] = l1_weight[0 : (L2 + 1), :]
                 l1_bias[i * (L2 + 1) : (i + 1) * (L2 + 1)] = l1_bias[0 : (L2 + 1)]
                 l2_weight[i * L3 : (i + 1) * L3, :] = l2_weight[0:L3, :]
                 l2_bias[i * L3 : (i + 1) * L3] = l2_bias[0:L3]
@@ -83,9 +77,7 @@ class LayerStacks(nn.Module):
     def forward(self, x, ls_indices):
         # Precompute and cache the offset for gathers
         if self.idx_offset is None or self.idx_offset.shape[0] != x.shape[0]:
-            self.idx_offset = torch.arange(
-                0, x.shape[0] * self.count, self.count, device=ls_indices.device
-            )
+            self.idx_offset = torch.arange(0, x.shape[0] * self.count, self.count, device=ls_indices.device)
 
         indices = ls_indices.flatten() + self.idx_offset
 
@@ -99,9 +91,7 @@ class LayerStacks(nn.Module):
         l1f_, l1f_out = l1f_.split(L2, dim=1)
         l1x_ = l1c_ + l1f_
         # multiply sqr crelu result by (127/128) to match quantized version
-        l1x_ = torch.clamp(
-            torch.cat([torch.pow(l1x_, 2.0) * (127 / 128), l1x_], dim=1), 0.0, 1.0
-        )
+        l1x_ = torch.clamp(torch.cat([torch.pow(l1x_, 2.0) * (127 / 128), l1x_], dim=1), 0.0, 1.0)
 
         l2s_ = self.l2(l1x_).reshape((-1, self.count, L3))
         l2c_ = l2s_.view(-1, L3)[indices]
@@ -122,14 +112,8 @@ class LayerStacks(nn.Module):
                 l1 = nn.Linear(2 * L1 // 2, L2 + 1)
                 l2 = nn.Linear(L2 * 2, L3)
                 output = nn.Linear(L3, 1)
-                l1.weight.data = (
-                    self.l1.weight[i * (L2 + 1) : (i + 1) * (L2 + 1), :]
-                    + self.l1_fact.weight.data
-                )
-                l1.bias.data = (
-                    self.l1.bias[i * (L2 + 1) : (i + 1) * (L2 + 1)]
-                    + self.l1_fact.bias.data
-                )
+                l1.weight.data = self.l1.weight[i * (L2 + 1) : (i + 1) * (L2 + 1), :] + self.l1_fact.weight.data
+                l1.bias.data = self.l1.bias[i * (L2 + 1) : (i + 1) * (L2 + 1)] + self.l1_fact.bias.data
                 l2.weight.data = self.l2.weight[i * L3 : (i + 1) * L3, :]
                 l2.bias.data = self.l2.bias[i * L3 : (i + 1) * L3]
                 output.weight.data = self.output.weight[i : (i + 1), :]
@@ -184,9 +168,7 @@ class NNUE(pl.LightningModule):
         self.adjust_loss = adjust_loss
 
         max_hidden_weight = self.quantized_one / self.weight_scale_hidden
-        max_out_weight = (self.quantized_one * self.quantized_one) / (
-            self.nnue2score * self.weight_scale_out
-        )
+        max_out_weight = (self.quantized_one * self.quantized_one) / (self.nnue2score * self.weight_scale_out)
         self.weight_clipping = [
             {
                 "params": [self.layer_stacks.l1.weight],
@@ -242,16 +224,10 @@ class NNUE(pl.LightningModule):
                         ys = p_data_fp32.shape[1] // virtual_params.shape[1]
                         expanded_virtual_layer = virtual_params.repeat(xs, ys)
                         if min_weight is not None:
-                            min_weight_t = (
-                                p_data_fp32.new_full(p_data_fp32.shape, min_weight)
-                                - expanded_virtual_layer
-                            )
+                            min_weight_t = p_data_fp32.new_full(p_data_fp32.shape, min_weight) - expanded_virtual_layer
                             p_data_fp32 = torch.max(p_data_fp32, min_weight_t)
                         if max_weight is not None:
-                            max_weight_t = (
-                                p_data_fp32.new_full(p_data_fp32.shape, max_weight)
-                                - expanded_virtual_layer
-                            )
+                            max_weight_t = p_data_fp32.new_full(p_data_fp32.shape, max_weight) - expanded_virtual_layer
                             p_data_fp32 = torch.min(p_data_fp32, max_weight_t)
                     else:
                         if min_weight is not None and max_weight is not None:
@@ -273,9 +249,7 @@ class NNUE(pl.LightningModule):
         #       Currently we support only a single feature block.
         if len(self.feature_set.features) > 1:
             raise Exception(
-                "Cannot change feature set from {} to {}.".format(
-                    self.feature_set.name, new_feature_set.name
-                )
+                "Cannot change feature set from {} to {}.".format(self.feature_set.name, new_feature_set.name)
             )
 
         # Currently we only support conversion for feature sets with
@@ -297,17 +271,13 @@ class NNUE(pl.LightningModule):
         if old_feature_block.name == next(iter(new_feature_block.factors)):
             # We can just extend with zeros since it's unfactorized -> factorized
             weights = self.input.weight
-            padding = weights.new_zeros(
-                (weights.shape[0], new_feature_block.num_virtual_features)
-            )
+            padding = weights.new_zeros((weights.shape[0], new_feature_block.num_virtual_features))
             weights = torch.cat([weights, padding], dim=1)
             self.input.weight = nn.Parameter(weights)
             self.feature_set = new_feature_set
         else:
             raise Exception(
-                "Cannot change feature set from {} to {}.".format(
-                    self.feature_set.name, new_feature_set.name
-                )
+                "Cannot change feature set from {} to {}.".format(self.feature_set.name, new_feature_set.name)
             )
 
     def forward(self, us, them, w_in, b_in, layer_stack_indices):
@@ -337,9 +307,7 @@ class NNUE(pl.LightningModule):
         scorenet = self(us, them, white, black, layer_stack_indices) * self.nnue2score
         q = (scorenet - offset) / in_scaling  # used to compute the chance of a win
         qm = (-scorenet - offset) / in_scaling  # used to compute the chance of a loss
-        qf = 0.5 * (
-            1.0 + q.sigmoid() - qm.sigmoid()
-        )  # estimated match result (using win, loss and draw probs).
+        qf = 0.5 * (1.0 + q.sigmoid() - qm.sigmoid())  # estimated match result (using win, loss and draw probs).
 
         p = (score - offset) / out_scaling
         pm = (-score - offset) / out_scaling
@@ -406,9 +374,7 @@ class NNUE(pl.LightningModule):
             softplus=False,
             pnm_momentum_factor=0.0,
         )
-        scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer, step_size=1, gamma=self.gamma
-        )
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=self.gamma)
         return [optimizer], [scheduler]
 
     def get_layers(self, filt):

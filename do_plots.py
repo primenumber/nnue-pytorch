@@ -1,4 +1,3 @@
-
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 import matplotlib.pyplot as plt
@@ -114,7 +113,6 @@ def do_plots(out_filename, root_dirs, elo_range, loss_range, split):
     ax_train_loss.set_ylabel("train_loss")
 
     for user_root_dir in root_dirs:
-
         # if asked to split we split the roto dir into a number of user root dirs,
         # i.e. all direct subdirectories containing tfevent files.
         # we use the ordo file in the root dir, but split the content.
@@ -136,11 +134,7 @@ def do_plots(out_filename, root_dirs, elo_range, loss_range, split):
             val_losses = collections.defaultdict(lambda: [])
             train_losses = collections.defaultdict(lambda: [])
             for i, tfevents_file in enumerate(tfevents_files):
-                print(
-                    "Processing tfevents file {}/{}: {}".format(
-                        i + 1, len(tfevents_files), tfevents_file
-                    )
-                )
+                print("Processing tfevents file {}/{}: {}".format(i + 1, len(tfevents_files), tfevents_file))
                 events_acc = EventAccumulator(tfevents_file, tf_size_guidance)
                 events_acc.Reload()
 
