@@ -39,3 +39,7 @@ dev = [
 
 [tool.ruff]
 line-length = 119
+exclude = [
+    "YaneuraOu",
+]
+

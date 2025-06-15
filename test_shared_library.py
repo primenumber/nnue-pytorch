@@ -1,7 +1,6 @@
 import nnue_dataset
 import halfkp
 import time
-import torch
 import nnue_bin_dataset
 
 

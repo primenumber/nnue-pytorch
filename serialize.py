@@ -1,13 +1,9 @@
 import argparse
 import features
-import math
 import model as M
 import numpy as np
-import nnue_bin_dataset
 import struct
 import torch
-import pytorch_lightning as pl
-from torch.utils.data import DataLoader
 from functools import reduce
 import operator
 from torch import nn

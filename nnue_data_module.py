@@ -1,8 +1,7 @@
 import lightning as L
 import nnue_dataset
 import features
-from feature_set import FeatureSet
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 
 
 class NNUEDataModule(L.LightningDataModule):

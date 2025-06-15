@@ -45,8 +45,6 @@ import collections
 # this is to support showing the lr curves after a training run.
 import matplotlib.pyplot as plt
 
-import copy
-from torch import linalg as LA
 
 import numpy as np
 
@@ -318,7 +316,7 @@ class Ranger21(TO.Optimizer):
         plt.show()
 
     def show_settings(self):
-        print(f"Ranger21 optimizer ready with following settings:\n")
+        print("Ranger21 optimizer ready with following settings:\n")
         print(f"Core optimizer = {self.core_engine}")
         print(f"Learning rate of {self.starting_lr}\n")
 
@@ -327,7 +325,7 @@ class Ranger21(TO.Optimizer):
         )
 
         if self.use_adabelief:
-            print(f"using AdaBelief for variance computation")
+            print("using AdaBelief for variance computation")
         if self.use_warmup:
             print(
                 f"Warm-up: {self.warmup_type} warmup, over {self.num_warmup_iters} iterations\n"
@@ -342,7 +340,7 @@ class Ranger21(TO.Optimizer):
             print(f"Stable weight decay of {self.decay}")
 
         if self.use_gc:
-            print(f"Gradient Centralization = On\n")
+            print("Gradient Centralization = On\n")
         else:
             print("Gradient Centralization = Off\n")
 
@@ -361,19 +359,19 @@ class Ranger21(TO.Optimizer):
     def clear_cache(self):
         """clears the lookahead cached params"""
 
-        print(f"clearing lookahead cache...")
+        print("clearing lookahead cache...")
         for group in self.param_groups:
             for p in group["params"]:
                 param_state = self.state[p]
                 try:
                     la_params = param_state["lookahead_params"]
                 except:
-                    print(f"no lookahead cache present.")
+                    print("no lookahead cache present.")
                     return
 
                 if len(la_params):
                     param_state["lookahead_params"] = torch.zeros_like(p.data)
-        print(f"lookahead cache cleared")
+        print("lookahead cache cleared")
 
     def clear_and_load_backup(self):
         for group in self.param_groups:
@@ -494,7 +492,7 @@ class Ranger21(TO.Optimizer):
             )  # +1 to offset that we have to include first as an iteration to support 1 index instead of 0 based.
             if warmdown_pct > 1.00:
                 print(f"error in warmdown pct calc.  new pct = {warmdown_pct}")
-                print(f"auto handled but please report issue")
+                print("auto handled but please report issue")
                 warmdown_pct = 1.00
 
             # .5
@@ -505,7 +503,7 @@ class Ranger21(TO.Optimizer):
             new_lr = self.starting_lr - reduction
             if new_lr < self.min_lr:
                 print(f"error in warmdown - lr below min lr. current lr = {new_lr}")
-                print(f"auto handling but please report issue!")
+                print("auto handling but please report issue!")
                 new_lr = self.min_lr
 
             self.current_lr = new_lr
@@ -697,7 +695,7 @@ class Ranger21(TO.Optimizer):
             # we will run this first epoch only and then memoize
         if not self.param_size:
             self.param_size = param_size
-            print(f"params size saved")
+            print("params size saved")
             print(f"total param groups = {i+1}")
             print(f"total params in groups = {j+1}")
 

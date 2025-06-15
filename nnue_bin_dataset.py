@@ -1,11 +1,8 @@
 import chess
-import halfkp
 import mmap
 import random
 import os
 import torch
-import torch.nn.functional as F
-import numpy as np
 
 PACKED_SFEN_VALUE_BYTES = 40
 

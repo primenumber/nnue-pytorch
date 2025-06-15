@@ -4,8 +4,6 @@ import halfkp
 import torch
 import model as M
 import pytorch_lightning as pl
-from pytorch_lightning import loggers as pl_loggers
-from torch.utils.data import DataLoader
 
 
 def compute_mse(nnue, data):

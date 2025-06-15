@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from feature_block import *
 import torch
 

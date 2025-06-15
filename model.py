@@ -1,11 +1,7 @@
-import chess
-import ranger
 import ranger21
 import torch
 from torch import nn
-import torch.nn.functional as F
 import lightning.pytorch as pl
-import sys
 import features
 
 # 3 layer fully connected network
