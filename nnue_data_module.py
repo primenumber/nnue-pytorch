@@ -54,6 +54,8 @@ class NNUEDataModule(L.LightningDataModule):
             ),
             batch_size=None,
             batch_sampler=None,
+            pin_memory=True,
+            persistent_workers=False,
         )
 
     def val_dataloader(self):
@@ -66,4 +68,6 @@ class NNUEDataModule(L.LightningDataModule):
             ),
             batch_size=None,
             batch_sampler=None,
+            pin_memory=True,
+            persistent_workers=False,
         )

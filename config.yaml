@@ -5,7 +5,7 @@ trainer:
   strategy: auto
   devices: '1'
   num_nodes: 1
-  precision: null
+  precision: 32-true
   logger: null
   callbacks: null
   fast_dev_run: false
@@ -26,11 +26,11 @@ trainer:
   enable_checkpointing: null
   enable_progress_bar: null
   enable_model_summary: null
-  accumulate_grad_batches: 1
+  accumulate_grad_batches: 2
   gradient_clip_val: null
   gradient_clip_algorithm: null
   deterministic: null
-  benchmark: null
+  benchmark: true
   inference_mode: true
   use_distributed_sampler: true
   profiler: simple
