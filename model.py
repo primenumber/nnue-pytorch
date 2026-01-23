@@ -5,9 +5,9 @@ import lightning.pytorch as pl
 import features
 
 # 3 layer fully connected network
-L1 = 2048
-L2 = 15
-L3 = 64
+L1 = 256
+L2 = 32
+L3 = 32
 
 
 def coalesce_ft_weights(model, layer):

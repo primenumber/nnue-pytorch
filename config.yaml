@@ -42,7 +42,7 @@ trainer:
   default_root_dir: null
   model_registry: null
 model:
-  features_name: HalfKP
+  features_name: HalfKA
   start_lambda: 1.0
   end_lambda: 1.0
   max_epoch: 800
