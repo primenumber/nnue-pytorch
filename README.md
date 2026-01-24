@@ -17,7 +17,7 @@ sh compile_data_loader.bat
 # Train a network
 
 ```
-uv run main.py --config=config.yaml
+uv run main.py fit --config=config.yaml
 ```
 
 # Export a network
