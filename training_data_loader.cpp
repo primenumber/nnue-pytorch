@@ -352,18 +352,18 @@ struct HalfKAHm {
 
 struct HalfKAHmFactorized {
     // Factorized features
-    static constexpr int PIECE_INPUTS = HalfKA::NUM_PLANES ;
+    static constexpr int PIECE_INPUTS = HalfKAHm::NUM_PLANES ;
     static constexpr int NUN_PIECE_KINDS = (Eval::fe_end2 - Eval::fe_hand_end) / 81;
     static constexpr int REL_INPUTS = NUN_PIECE_KINDS * 17 * 17 + Eval::fe_hand_end;
-    static constexpr int INPUTS = HalfKA::INPUTS + PIECE_INPUTS + REL_INPUTS;
+    static constexpr int INPUTS = HalfKAHm::INPUTS + PIECE_INPUTS + REL_INPUTS;
 
     static constexpr int MAX_PIECE_FEATURES = 40;
-    static constexpr int MAX_ACTIVE_FEATURES = HalfKA::MAX_ACTIVE_FEATURES + MAX_PIECE_FEATURES + MAX_PIECE_FEATURES;
+    static constexpr int MAX_ACTIVE_FEATURES = HalfKAHm::MAX_ACTIVE_FEATURES + MAX_PIECE_FEATURES + MAX_PIECE_FEATURES;
 
     static void fill_features_sparse(int i, const TrainingDataEntry& e, int* features, float* values, int& counter, Color color)
     {
         auto counter_before = counter;
-        int offset = HalfKA::fill_features_sparse(i, e, features, values, counter, color);
+        int offset = HalfKAHm::fill_features_sparse(i, e, features, values, counter, color);
 
         auto& pos = *e.pos;
         Eval::BonaPiece* pieces = nullptr;
@@ -742,6 +742,14 @@ extern "C" {
         {
              return new SparseBatch(FeatureSet<HalfKAFactorized>{}, entries);
         }
+        else if (feature_set == "HalfKAHm")
+        {
+             return new SparseBatch(FeatureSet<HalfKAHm>{}, entries);
+        }
+        else if (feature_set == "HalfKAHm^")
+        {
+             return new SparseBatch(FeatureSet<HalfKAHmFactorized>{}, entries);
+        }
         fprintf(stderr, "Unknown feature_set %s\n", feature_set_c);
         return nullptr;
     }
@@ -790,6 +798,14 @@ extern "C" {
         else if (feature_set == "HalfKA^")
         {
             return new FeaturedBatchStream<FeatureSet<HalfKAFactorized>, SparseBatch>(concurrency, filename, batch_size, cyclic, skipPredicate);
+        }
+        else if (feature_set == "HalfKAHm")
+        {
+             return new FeaturedBatchStream<FeatureSet<HalfKAHm>, SparseBatch>(concurrency, filename, batch_size, cyclic, skipPredicate);
+        }
+        else if (feature_set == "HalfKAHm^")
+        {
+            return new FeaturedBatchStream<FeatureSet<HalfKAHmFactorized>, SparseBatch>(concurrency, filename, batch_size, cyclic, skipPredicate);
         }
         fprintf(stderr, "Unknown feature_set %s\n", feature_set_c);
         return nullptr;
