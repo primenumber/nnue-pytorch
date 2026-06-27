@@ -5,7 +5,7 @@ import lightning.pytorch as pl
 import features
 
 # 3 layer fully connected network
-L1 = 256
+L1 = 320
 L2 = 32
 L3 = 32
 
@@ -360,7 +360,7 @@ class NNUE(pl.LightningModule):
         # )
         optimizer = ranger21.Ranger21(
             train_params,
-            lr=1.0,
+            lr=1e-3,
             betas=(0.9, 0.999),
             eps=1.0e-7,
             using_gc=False,
