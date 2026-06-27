@@ -1,7 +1,7 @@
 from feature_set import FeatureSet
 import halfkp
 import halfka
-import halfka_hm
+import halfka_v2_hm
 
 """
 Each module that defines feature blocks must be imported here and
@@ -10,7 +10,7 @@ function `get_feature_block_clss` at module scope that returns the list
 of feature block classes in that module.
 """
 
-_feature_modules = [halfkp, halfka, halfka_hm]
+_feature_modules = [halfkp, halfka, halfka_v2_hm]
 
 _feature_blocks_by_name = dict()
 
@@ -45,7 +45,7 @@ def get_available_feature_blocks_names():
 
 
 def add_argparse_args(parser):
-    _default_feature_set_name = "HalfKAHm^"
+    _default_feature_set_name = 'HalfKAv2_hm^'
     parser.add_argument(
         "--features",
         dest="features",
