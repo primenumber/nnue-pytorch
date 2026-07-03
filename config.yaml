@@ -45,11 +45,11 @@ model:
   features_name: HalfKAv2_hm
   start_lambda: 1.0
   end_lambda: 1.0
-  max_epoch: 200
+  max_epoch: 800
   gamma: 0.992
-  lr: 0.000875
-  epoch_size: 100000000
-  batch_size: 8192
+  lr: 8.75e-4
+  epoch_size: 1000000
+  batch_size: 16384
   in_scaling: 240
   out_scaling: 280
   offset: 270
@@ -59,7 +59,7 @@ data:
   train_filename: datasets/dataset_train.bin
   val_filename: datasets/dataset_validation.bin
   num_workers: 32
-  batch_size: 8192
+  batch_size: 16384
   filtered: false
   random_fen_skipping: false
   epoch_size: 152245166
