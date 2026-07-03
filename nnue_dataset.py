@@ -35,11 +35,18 @@ class SparseBatch(ctypes.Structure):
     ]
 
     def get_tensors(self):
+        # NOTE: np.ctypeslib.as_array creates a view into the C++ batch memory
+        # without copying. The caller frees that memory (destroy_part) right after
+        # this call returns, so every tensor derived from a view must own its own
+        # memory before we return, otherwise later reads (e.g. the DataLoader's
+        # pin_memory copy or the forward pass) touch freed memory and segfault.
+        # We therefore .copy() every float32 view here. The index tensors below get
+        # a dtype-changing .long() which already produces an owning copy.
         white_values = torch.from_numpy(
-            np.ctypeslib.as_array(self.white_values, shape=(self.num_active_white_features,))
+            np.ctypeslib.as_array(self.white_values, shape=(self.num_active_white_features,)).copy()
         )
         black_values = torch.from_numpy(
-            np.ctypeslib.as_array(self.black_values, shape=(self.num_active_black_features,))
+            np.ctypeslib.as_array(self.black_values, shape=(self.num_active_black_features,)).copy()
         )
         iw = torch.transpose(
             torch.from_numpy(np.ctypeslib.as_array(self.white, shape=(self.num_active_white_features, 2))),
@@ -51,10 +58,10 @@ class SparseBatch(ctypes.Structure):
             0,
             1,
         ).long()
-        us = torch.from_numpy(np.ctypeslib.as_array(self.is_white, shape=(self.size, 1)))
+        us = torch.from_numpy(np.ctypeslib.as_array(self.is_white, shape=(self.size, 1)).copy())
         them = 1.0 - us
-        outcome = torch.from_numpy(np.ctypeslib.as_array(self.outcome, shape=(self.size, 1)))
-        score = torch.from_numpy(np.ctypeslib.as_array(self.score, shape=(self.size, 1)))
+        outcome = torch.from_numpy(np.ctypeslib.as_array(self.outcome, shape=(self.size, 1)).copy())
+        score = torch.from_numpy(np.ctypeslib.as_array(self.score, shape=(self.size, 1)).copy())
         white = torch.sparse_coo_tensor(iw, white_values, (self.size, self.num_inputs))
         black = torch.sparse_coo_tensor(ib, black_values, (self.size, self.num_inputs))
         white._coalesced_(True)
