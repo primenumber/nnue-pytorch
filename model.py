@@ -5,7 +5,7 @@ import lightning.pytorch as pl
 import features
 
 # 3 layer fully connected network
-L1 = 2304
+L1 = 512
 L2 = 15
 L3 = 64
 
